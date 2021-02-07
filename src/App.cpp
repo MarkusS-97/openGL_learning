@@ -136,3 +136,8 @@ int main()
     glfwTerminate();
     return 0;
 }
+
+int misc()
+{
+    return 0;
+}
