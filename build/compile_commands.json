@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/markussalm/dev/openGL_cherno/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/markussalm/dev/openGL_cherno/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk/System/Library/Frameworks -I/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/GLUT.framework/Headers -I/Users/markussalm/dev/openGL_cherno/libs/GLFW/include -I/Users/markussalm/dev/openGL_cherno/libs/GLEW/include -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -mmacosx-version-min=10.15   -std=c++11 -o CMakeFiles/openGL_cherno.dir/src/App.cpp.o -c /Users/markussalm/dev/openGL_cherno/src/App.cpp",
+  "file": "/Users/markussalm/dev/openGL_cherno/src/App.cpp"
+}
+]
