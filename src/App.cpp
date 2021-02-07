@@ -3,6 +3,49 @@
 //#include <OpenGL/gl.h>
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+struct ShaderProgramSource
+{
+    std::string VertexSource;
+    std::string FragmentSource;
+};
+
+static ShaderProgramSource ParseShader(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+
+    enum class ShaderType
+    {
+        NONE = -1, VERTEX = 0, FRAGMENT = 1
+    };
+
+    std::string line;
+    std::stringstream ss[2];    // 0: VERTEX, 1: FRAGMENT
+    ShaderType type = ShaderType::NONE;
+    while (getline(stream, line))
+    {
+        if (line.find("#shader") != std::string::npos)
+        {
+            if  (line.find("vertex") != std::string::npos)
+            {
+                type = ShaderType::VERTEX;
+            }
+            else if (line.find("fragment") != std::string::npos)
+            {
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else
+        {
+            ss[(int)type] << line << "\n";
+        }
+    }
+
+    return { ss[0].str(), ss[1].str() };
+}
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
@@ -13,11 +56,11 @@ static unsigned int CompileShader(unsigned int type, const std::string& source)
 
     int result;
     glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if(result == GL_FALSE)
+    if (result == GL_FALSE)
     {
         int length; 
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)malloc(length * sizeof(char));    // trick to allocate memory on the stack
+        char* message = (char*)malloc(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
         std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" 
                   << std::endl;
@@ -54,7 +97,7 @@ int main()
     if (!glfwInit())
         return -1;
 
-    /* enable use GLSL verison 3.3 */
+    /* enable GLSL verison 3.3 */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -96,25 +139,10 @@ int main()
     glEnableVertexAttribArray(0);   // enable following attribute array
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0); // specify how to interpret buffer
 
-    std::string vertextShader = R"(
-        #version 330 core
-        layout(location = 0) in vec4 position;
-        void main()
-        {
-           gl_Position = position;
-        }
-    )";
+    /* load vertex and fragment shaders */
+    ShaderProgramSource source = ParseShader("../res/shaders/Basic.shader");    // path relative to current file
 
-    std::string fragmentShader = R"(
-        #version 330 core
-        layout(location = 0) out vec4 color;
-        void main()
-        {
-           color = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    )";
-
-    unsigned int shader = CreateShader(vertextShader, fragmentShader);
+    unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
     /* Loop until the user closes the window */
@@ -133,11 +161,8 @@ int main()
         glfwPollEvents();
     }
 
-    glfwTerminate();
-    return 0;
-}
+    glDeleteProgram(shader);
 
-int misc()
-{
+    glfwTerminate();
     return 0;
 }
